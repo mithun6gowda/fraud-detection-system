@@ -4,7 +4,7 @@ from xgboost import XGBClassifier
 
 import joblib
 
-df = pd.read_csv("src/data/fraud_data.csv")
+df = pd.read_csv("data/fraud_data.csv")
 
 df["is_foreign"] = (df["location"]!="IN").astype(int)
 
@@ -20,6 +20,6 @@ model = XGBClassifier(scale_pos_weight=20,n_estimators=100,max_depth=5)
 
 model.fit(X,y)
 
-joblib.dump(model,"src/models/fraud_model.pkl")
+joblib.dump(model,"models/fraud_model.pkl")
 
 print("model trained and saved")

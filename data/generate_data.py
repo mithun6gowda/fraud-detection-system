@@ -55,6 +55,6 @@ for _ in range(NUM_TRANSACTIONS):
     data.append(txn)
 
 df = pd.DataFrame(data)
-df.to_csv("src/data/fraud_data.csv", index=False)
+df.to_csv("data/fraud_data.csv", index=False)
 
 print("Dataset generated:", df.shape)
