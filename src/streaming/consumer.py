@@ -1,20 +1,32 @@
-from kafka import KafkaConsumer
+from confluent_kafka import Consumer
 import json
 import requests
 
-consumer = KafkaConsumer(
-    "transactions",
-    bootstrap_servers="localhost:9092",
-    value_deserializer=lambda m: json.loads(m.decode("utf-8"))
-)
+consumer = Consumer({
+    'bootstrap.servers': 'localhost:9092',
+    'group.id': 'fraud-group',
+    'auto.offset.reset': 'earliest'
+})
 
-for message in consumer:
-    txn = message.value
+consumer.subscribe(['transactions'])
 
-    response = requests.post(
-        "http://localhost:8000/predict",
-        json=txn
-    )
+while True:
+    msg = consumer.poll(1.0)
 
-    print("Txn:", txn)
-    print("Prediction:", response.json())
+    if msg is None:
+        continue
+    if msg.error():
+        print("Error:", msg.error())
+        continue
+
+    txn = json.loads(msg.value().decode('utf-8'))
+
+    try:
+        response = requests.post(
+            "http://localhost:8000/predict",
+            json=txn
+        )
+        print("Txn:", txn)
+        print("Prediction:", response.json())
+    except Exception as e:
+        print("API Error:", e)
